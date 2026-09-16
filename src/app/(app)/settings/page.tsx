@@ -1,3 +1,7 @@
+"use client"
+
+import Link from "next/link"
+
 import { Button } from "@/components/ui/button"
 import { ItemList } from "@/components/shared/item-list"
 import { PageHeader } from "@/components/shared/page-header"
@@ -10,7 +14,13 @@ export default function SettingsPage() {
         title="Settings"
         description="Manage this workspace, brand details, and which channels are allowed to publish or spend."
         action={
-          <Button size="lg" variant="outline" className="min-h-11 w-full sm:w-auto">
+          <Button
+            nativeButton={false}
+            size="lg"
+            variant="outline"
+            className="min-h-11 w-full sm:w-auto"
+            render={<Link href="/settings/brand-brief" />}
+          >
             Edit brand brief
           </Button>
         }
