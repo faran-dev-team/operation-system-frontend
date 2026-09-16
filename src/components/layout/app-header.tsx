@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation"
 import { LogOut, Menu } from "lucide-react"
 
 import { useAuth } from "@/components/auth/auth-provider"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -15,12 +14,13 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { SidebarNav } from "@/components/layout/sidebar-nav"
+import { WorkspaceSwitcher } from "@/components/layout/workspace-switcher"
 import { getPageTitle } from "@/lib/navigation"
 
 export function AppHeader() {
   const pathname = usePathname()
   const router = useRouter()
-  const { session, logout } = useAuth()
+  const { logout } = useAuth()
   const title = getPageTitle(pathname)
   const [open, setOpen] = useState(false)
 
@@ -55,12 +55,7 @@ export function AppHeader() {
       <h1 className="truncate text-sm font-medium sm:text-base">{title}</h1>
 
       <div className="ml-auto flex min-w-0 items-center gap-2">
-        <Badge variant="outline" className="max-w-[9rem] truncate sm:max-w-none">
-          {session?.workspace.name ?? "Workspace"}
-        </Badge>
-        <span className="hidden truncate text-xs text-muted-foreground capitalize sm:inline">
-          {session?.workspace.role ?? "member"}
-        </span>
+        <WorkspaceSwitcher />
         <Button
           type="button"
           variant="ghost"
