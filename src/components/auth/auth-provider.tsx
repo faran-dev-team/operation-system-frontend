@@ -19,11 +19,9 @@ import {
   restoreSession,
 } from "@/lib/auth/auth-api"
 import {
-  getAccessToken,
   getStoredSession,
   type AuthSession,
 } from "@/lib/auth/session"
-import { switchActiveWorkspace } from "@/lib/api/workspaces"
 
 type AuthContextValue = {
   session: AuthSession | null
@@ -35,7 +33,6 @@ type AuthContextValue = {
   }) => Promise<void>
   logout: () => void
   refresh: () => Promise<void>
-  switchWorkspace: (workspaceId: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -88,21 +85,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(restored)
   }, [])
 
-  const switchWorkspace = useCallback(async (workspaceId: string) => {
-    await switchActiveWorkspace(workspaceId)
-    const token = getAccessToken()
-    if (token) {
-      const remember =
-        typeof window !== "undefined" &&
-        window.localStorage.getItem("os.remember") !== "0"
-      const next = await establishSession(token, {
-        remember,
-        workspaceId,
-      })
-      setSession(next)
-    }
-  }, [])
-
   const value = useMemo(
     () => ({
       session,
@@ -110,11 +92,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout,
       refresh,
-      switchWorkspace,
     }),
-    [session, isLoading, login, logout, refresh, switchWorkspace]
+    [session, isLoading, login, logout, refresh]
   )
-
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

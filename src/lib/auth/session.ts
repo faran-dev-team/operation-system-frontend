@@ -95,16 +95,6 @@ export function setSession(
   primary.setItem(WORKSPACE_META_KEY, JSON.stringify(session.workspace))
 }
 
-export function updateActiveWorkspace(workspace: MeResponse["workspace"]) {
-  const storage = storageWithToken()
-  if (!storage) {
-    return
-  }
-  storage.setItem(WORKSPACE_KEY, workspace.id)
-  storage.setItem(WORKSPACE_META_KEY, JSON.stringify(workspace))
-}
-
-
 export function clearSession() {
   if (!canUseStorage()) {
     return
