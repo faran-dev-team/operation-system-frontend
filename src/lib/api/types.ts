@@ -125,3 +125,54 @@ export type ApiRequestOptions = {
   /** Skip Authorization even if a token is available in session helpers */
   skipAuth?: boolean
 }
+
+/** Integration readiness from provider adapters */
+export type IntegrationStatus = "ok" | "skipped" | "error"
+
+export type ProviderKind =
+  | "deepseek"
+  | "retell"
+  | "email"
+  | "google_ads"
+  | "meta_ads"
+  | "social"
+
+export type ProviderHealth = {
+  provider: ProviderKind | string
+  status: IntegrationStatus
+  checkedAt: string
+  message?: string
+}
+
+export type ProvidersHealthResponse = {
+  status: "ready" | "degraded"
+  checks: {
+    deepseek: ProviderHealth
+    retell: ProviderHealth
+    email: ProviderHealth
+    social: ProviderHealth
+    ads: ProviderHealth
+  }
+}
+
+export type SocialAccountType = "facebook" | "instagram" | "linkedin" | "x"
+
+export type ConnectionLifecycleStatus =
+  | "pending"
+  | "connected"
+  | "disconnected"
+  | "expired"
+  | "error"
+
+export type SocialConnection = {
+  id: string
+  accountType: SocialAccountType | string | null
+  status: ConnectionLifecycleStatus | string
+  externalAccountId: string | null
+  scopes: string[]
+  displayName: string | null
+  lastHealthAt: string | null
+  lastHealthMessage: string | null
+  createdAt: string
+  updatedAt: string
+}
