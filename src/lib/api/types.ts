@@ -33,6 +33,15 @@ export type MeResponse = {
   }
 }
 
+export type WorkspaceSummary = {
+  id: string
+  name: string
+  slug: string
+  role: "admin" | "operator" | "reviewer"
+  isCurrent?: boolean
+}
+
+
 export type ApiRequestOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
   body?: unknown
