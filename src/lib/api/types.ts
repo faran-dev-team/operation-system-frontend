@@ -41,6 +41,79 @@ export type WorkspaceSummary = {
   isCurrent?: boolean
 }
 
+export type BrandBriefResponse = {
+  id: string
+  workspaceId: string
+  name: string
+  tone: string | null
+  approvedFacts: string | null
+  prohibitedClaims: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type UpsertBrandBriefPayload = {
+  name: string
+  tone?: string
+  approvedFacts?: string
+  prohibitedClaims?: string
+}
+
+export type ContentJobStatus = "requested" | "running" | "succeeded" | "failed"
+
+export type ContentRequestSummary = {
+  id: string
+  workspaceId: string
+  createdByUserId: string | null
+  status: ContentJobStatus
+  input: unknown
+  idempotencyKey: string | null
+  createdAt: string
+}
+
+export type ContentJob = {
+  id: string
+  workspaceId: string
+  contentRequestId: string
+  status: ContentJobStatus
+  provider: string
+  promptVersion: string
+  errorCode: string | null
+  errorMessage: string | null
+  startedAt: string | null
+  completedAt: string | null
+  usageMetadata: unknown
+  draftId: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type ContentDraft = {
+  id: string
+  workspaceId: string
+  contentRequestId: string
+  generationJobId: string | null
+  title: string | null
+  body: string
+  version: number
+  provider: string | null
+  promptVersion: string | null
+  metadata: unknown
+  createdAt: string
+  updatedAt: string
+}
+
+export type SubmitContentResponse = {
+  request: ContentRequestSummary
+  job: ContentJob | null
+  draft: ContentDraft | null
+}
+
+export type CreateContentRequestPayload = {
+  topic: string
+  audience?: string
+  format?: string
+}
 
 export type ApiRequestOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
