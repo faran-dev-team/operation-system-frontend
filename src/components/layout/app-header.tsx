@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { usePathname } from "next/navigation"
-import { Menu } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { LogOut, Menu } from "lucide-react"
 
+import { useAuth } from "@/components/auth/auth-provider"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,8 +19,15 @@ import { getPageTitle } from "@/lib/navigation"
 
 export function AppHeader() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { session, logout } = useAuth()
   const title = getPageTitle(pathname)
   const [open, setOpen] = useState(false)
+
+  function handleLogout() {
+    logout()
+    router.replace("/login")
+  }
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/80">
@@ -48,11 +56,21 @@ export function AppHeader() {
 
       <div className="ml-auto flex min-w-0 items-center gap-2">
         <Badge variant="outline" className="max-w-[9rem] truncate sm:max-w-none">
-          Pilot Alpha
+          {session?.workspace.name ?? "Workspace"}
         </Badge>
-        <span className="hidden truncate text-xs text-muted-foreground sm:inline">
-          Operator
+        <span className="hidden truncate text-xs text-muted-foreground capitalize sm:inline">
+          {session?.workspace.role ?? "member"}
         </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="min-h-9 gap-1.5 px-2"
+          onClick={handleLogout}
+        >
+          <LogOut className="size-4" />
+          <span className="hidden sm:inline">Sign out</span>
+        </Button>
       </div>
     </header>
   )
