@@ -23,6 +23,7 @@ import { PageHeader } from "@/components/shared/page-header"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { useContentDrafts } from "@/hooks/use-content-drafts"
 import { useContentGeneration } from "@/hooks/use-content-generation"
+import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions"
 import type { ContentJobStatus } from "@/lib/api/types"
 import type { StatusTone } from "@/lib/mocks"
 
@@ -44,6 +45,7 @@ function draftMeta(createdAt: string, provider: string | null) {
 
 export default function ContentPage() {
   const { session } = useAuth()
+  const { isReviewer } = useWorkspacePermissions()
   const workspaceId = session?.workspace.id ?? null
 
   const {
@@ -137,6 +139,14 @@ export default function ContentPage() {
           </CardHeader>
 
           <CardContent className="space-y-4">
+            {isReviewer ? (
+              <div
+                role="status"
+                className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-300"
+              >
+                <strong>View-only:</strong> Content generation is restricted to Operators and Administrators. Reviewers have view-only access to drafts.
+              </div>
+            ) : null}
             {formErrors.length > 0 ? (
               <div
                 role="alert"
@@ -161,6 +171,7 @@ export default function ContentPage() {
                 placeholder="e.g. Spring launch announcement for our new plan"
                 maxLength={TOPIC_MAX}
                 rows={3}
+                disabled={generation.isBusy || isReviewer}
                 className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 md:text-sm dark:bg-input/30"
               />
             </div>
@@ -174,6 +185,7 @@ export default function ContentPage() {
                   onChange={(e) => setAudience(e.target.value)}
                   placeholder="e.g. existing customers"
                   maxLength={AUDIENCE_MAX}
+                  disabled={generation.isBusy || isReviewer}
                 />
               </div>
               <div className="space-y-1.5">
@@ -184,6 +196,7 @@ export default function ContentPage() {
                   onChange={(e) => setFormat(e.target.value)}
                   placeholder="e.g. email, caption, blog"
                   maxLength={FORMAT_MAX}
+                  disabled={generation.isBusy || isReviewer}
                 />
               </div>
             </div>
@@ -219,7 +232,7 @@ export default function ContentPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => generation.retry()}
-                        disabled={generation.isBusy}
+                        disabled={generation.isBusy || isReviewer}
                       >
                         Retry
                       </Button>
@@ -245,10 +258,10 @@ export default function ContentPage() {
               type="submit"
               size="lg"
               className="min-h-11 w-full gap-1.5 sm:w-auto"
-              disabled={generation.isBusy}
+              disabled={generation.isBusy || isReviewer}
             >
               <Sparkles className="size-4" />
-              {generation.isBusy ? "Generating..." : "Generate draft"}
+              {isReviewer ? "Read-only as Reviewer" : generation.isBusy ? "Generating..." : "Generate draft"}
             </Button>
           </CardFooter>
         </Card>

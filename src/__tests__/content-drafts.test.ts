@@ -118,7 +118,7 @@ describe("useContentDrafts", () => {
     mockedList.mockResolvedValueOnce({ data: alphaDrafts, requestId: "r1" })
 
     const { result, rerender } = renderHook(
-      ({ wsId }) => useContentDrafts(wsId),
+      ({ wsId }: { wsId: string | null }) => useContentDrafts(wsId),
       { initialProps: { wsId: "ws-1" as string | null } }
     )
     await waitFor(() => expect(result.current.isLoading).toBe(false))
@@ -134,6 +134,6 @@ describe("useContentDrafts", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.drafts).toHaveLength(1)
     expect(result.current.drafts[0]?.id).toBe("beta-1")
-    expect(result.current.drafts.every((d) => d.workspaceId === "ws-2")).toBe(true)
+    expect(result.current.drafts.every((d: { workspaceId: string }) => d.workspaceId === "ws-2")).toBe(true)
   })
 })
