@@ -1,22 +1,20 @@
 "use client"
 
 import Link from "next/link"
-import { Link2, RefreshCw } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 
 import { useAuth } from "@/components/auth/auth-provider"
 import { Button } from "@/components/ui/button"
-import { EmptyState } from "@/components/shared/empty-state"
 import { ErrorState } from "@/components/shared/error-state"
 import { ItemList } from "@/components/shared/item-list"
 import { LoadingState } from "@/components/shared/loading-state"
 import { PageHeader } from "@/components/shared/page-header"
 import { StatusBadge } from "@/components/shared/status-badge"
+import { ChannelConnectionsPanel } from "@/components/settings/channel-connections-panel"
+import { useChannelConnectionActions } from "@/hooks/use-channel-connection-actions"
 import { useSettingsIntegrations } from "@/hooks/use-settings-integrations"
 import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions"
-import {
-  providersHealthToRows,
-  socialConnectionsToRows,
-} from "@/lib/settings/status-display"
+import { providersHealthToRows } from "@/lib/settings/status-display"
 import type { StatusTone } from "@/lib/mocks"
 
 function overallTone(status: "ready" | "degraded" | undefined): StatusTone {
@@ -27,7 +25,7 @@ function overallTone(status: "ready" | "degraded" | undefined): StatusTone {
 
 export default function SettingsPage() {
   const { session } = useAuth()
-  const { isAdmin } = useWorkspacePermissions()
+  const { isAdmin, canMutate } = useWorkspacePermissions()
   const workspaceId = session?.workspace.id ?? null
   const {
     providersHealth,
@@ -37,10 +35,20 @@ export default function SettingsPage() {
     reload,
   } = useSettingsIntegrations(workspaceId)
 
+  const {
+    busyKey,
+    actionError,
+    connect,
+    disconnect,
+    reconnect,
+  } = useChannelConnectionActions({
+    canMutate,
+    onChanged: reload,
+  })
+
   const providerRows = providersHealth
     ? providersHealthToRows(providersHealth)
     : []
-  const connectionRows = socialConnectionsToRows(connections)
 
   return (
     <div className="space-y-6">
@@ -107,22 +115,15 @@ export default function SettingsPage() {
       ) : null}
 
       {!isLoading && !error ? (
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium">Channel connections</h3>
-          <p className="text-sm text-muted-foreground">
-            Social channels linked to this workspace. Connect flow still uses
-            backend stubs until live Meta and X OAuth is finished.
-          </p>
-          {connectionRows.length > 0 ? (
-            <ItemList items={connectionRows} />
-          ) : (
-            <EmptyState
-              icon={Link2}
-              title="No channels connected"
-              description="This workspace has no Instagram, X, Facebook Page, or LinkedIn connections yet. Status will appear here after a channel is connected."
-            />
-          )}
-        </div>
+        <ChannelConnectionsPanel
+          connections={connections}
+          canMutate={canMutate}
+          busyKey={busyKey}
+          actionError={actionError}
+          onConnect={connect}
+          onDisconnect={disconnect}
+          onReconnect={reconnect}
+        />
       ) : null}
     </div>
   )
