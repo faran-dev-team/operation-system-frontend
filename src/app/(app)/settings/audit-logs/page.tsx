@@ -32,16 +32,12 @@ export default function AuditLogsPage() {
   const [error, setError] = useState<string | null>(null)
 
   const loadLogs = useCallback(async () => {
-    if (!workspaceId || !isAdmin) {
-      setIsLoading(false)
-      return
-    }
+    if (!workspaceId || !isAdmin) return
 
-    setIsLoading(true)
-    setError(null)
     try {
       const data = await fetchWorkspaceAuditLogs(50)
       setLogs(data)
+      setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load audit logs.")
     } finally {
@@ -50,8 +46,11 @@ export default function AuditLogsPage() {
   }, [workspaceId, isAdmin])
 
   useEffect(() => {
-    void loadLogs()
-  }, [loadLogs])
+    if (!workspaceId || !isAdmin) return
+    void (async () => {
+      await loadLogs()
+    })()
+  }, [workspaceId, isAdmin, loadLogs])
 
   if (!isAdmin) {
     return (
