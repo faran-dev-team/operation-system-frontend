@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useMemo, useState } from "react"
-import { FileText, Loader2, RefreshCw, Sparkles, X } from "lucide-react"
+import { FileText, Loader2, Pencil, RefreshCw, Sparkles, X } from "lucide-react"
 
 import { useAuth } from "@/components/auth/auth-provider"
 import { Button } from "@/components/ui/button"
@@ -45,7 +45,7 @@ function draftMeta(createdAt: string, provider: string | null) {
 
 export default function ContentPage() {
   const { session } = useAuth()
-  const { isReviewer } = useWorkspacePermissions()
+  const { isReviewer, canMutate } = useWorkspacePermissions()
   const workspaceId = session?.workspace.id ?? null
 
   const {
@@ -55,9 +55,20 @@ export default function ContentPage() {
     selectedDraft,
     isDetailLoading,
     detailError,
+    isEditingDraft,
+    editDraftValue,
+    isSavingDraftEdit,
+    draftEditError,
+    draftEditConflict,
+    draftEditSaved,
     reload,
     selectDraft,
     clearSelectedDraft,
+    startEditingDraft,
+    setEditDraftValue,
+    cancelEditingDraft,
+    saveEditingDraft,
+    reloadAfterConflict,
   } = useContentDrafts(workspaceId)
 
   const onSuccess = useCallback(
@@ -290,17 +301,94 @@ export default function ContentPage() {
               </CardDescription>
             ) : null}
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
             {isDetailLoading ? (
               <LoadingState label="Loading draft" />
             ) : detailError ? (
               <ErrorState title="Cannot open draft" description={detailError} />
             ) : selectedDraft ? (
-              <div className="space-y-2">
-                <Badge variant="outline">Version {selectedDraft.version}</Badge>
-                <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {selectedDraft.body}
-                </p>
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <Badge variant="outline">Version {selectedDraft.version}</Badge>
+                  {!isEditingDraft ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={startEditingDraft}
+                      disabled={!canMutate}
+                    >
+                      <Pencil className="size-3.5" />
+                      {canMutate ? "Edit" : "View-only (Reviewer)"}
+                    </Button>
+                  ) : null}
+                </div>
+
+                {draftEditSaved && !isEditingDraft ? (
+                  <div
+                    role="status"
+                    className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-sm text-emerald-700 dark:text-emerald-400"
+                  >
+                    Draft saved successfully.
+                  </div>
+                ) : null}
+
+                {draftEditError ? (
+                  <div
+                    role="alert"
+                    className="space-y-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive"
+                  >
+                    <p>{draftEditError}</p>
+                    {draftEditConflict ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void reloadAfterConflict()}
+                      >
+                        Reload
+                      </Button>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {isEditingDraft && canMutate ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="draft-edit-content">Draft content</Label>
+                    <textarea
+                      id="draft-edit-content"
+                      value={editDraftValue}
+                      onChange={(e) => setEditDraftValue(e.target.value)}
+                      disabled={isSavingDraftEdit}
+                      rows={8}
+                      className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm leading-relaxed transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 dark:bg-input/30"
+                    />
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => void saveEditingDraft()}
+                        disabled={isSavingDraftEdit}
+                      >
+                        {isSavingDraftEdit ? "Saving..." : "Save"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={cancelEditingDraft}
+                        disabled={isSavingDraftEdit}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                    {selectedDraft.body}
+                  </p>
+                )}
               </div>
             ) : null}
           </CardContent>
