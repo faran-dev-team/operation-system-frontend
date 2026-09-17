@@ -181,3 +181,21 @@ export type SocialConnection = {
   createdAt: string
   updatedAt: string
 }
+
+export type SocialAccountTypesResponse = {
+  accountTypes: SocialAccountType[]
+}
+
+export type SocialOAuthStartResponse = {
+  url: string
+  state: string
+  accountType: SocialAccountType | string
+}
+
+export type SocialConnectionResult = {
+  connectionId: string
+  accountType: SocialAccountType | string
+  status: ConnectionLifecycleStatus | string
+  externalAccountId?: string
+  scopes?: string[]
+}
