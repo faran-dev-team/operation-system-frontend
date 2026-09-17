@@ -12,6 +12,7 @@ import { LoadingState } from "@/components/shared/loading-state"
 import { PageHeader } from "@/components/shared/page-header"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { useSettingsIntegrations } from "@/hooks/use-settings-integrations"
+import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions"
 import {
   providersHealthToRows,
   socialConnectionsToRows,
@@ -26,6 +27,7 @@ function overallTone(status: "ready" | "degraded" | undefined): StatusTone {
 
 export default function SettingsPage() {
   const { session } = useAuth()
+  const { isAdmin } = useWorkspacePermissions()
   const workspaceId = session?.workspace.id ?? null
   const {
     providersHealth,
@@ -67,6 +69,17 @@ export default function SettingsPage() {
             >
               Edit brand brief
             </Button>
+            {isAdmin ? (
+              <Button
+                nativeButton={false}
+                size="lg"
+                variant="outline"
+                className="min-h-11 w-full sm:w-auto"
+                render={<Link href="/settings/audit-logs" />}
+              >
+                Audit logs
+              </Button>
+            ) : null}
           </div>
         }
       />

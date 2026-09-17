@@ -239,7 +239,7 @@ describe("useBrandBrief", () => {
     mockedGet.mockResolvedValueOnce({ data: briefWs1, requestId: "req-8" })
 
     const { result, rerender } = renderHook(
-      ({ wsId }) => useBrandBrief(wsId),
+      ({ wsId }: { wsId: string | null }) => useBrandBrief(wsId),
       { initialProps: { wsId: "ws-1" as string | null } }
     )
 
@@ -270,7 +270,7 @@ describe("useBrandBrief", () => {
     })
 
     const { result, rerender } = renderHook(
-      ({ wsId }) => useBrandBrief(wsId),
+      ({ wsId }: { wsId: string | null }) => useBrandBrief(wsId),
       { initialProps: { wsId: "ws-1" as string | null } }
     )
 
