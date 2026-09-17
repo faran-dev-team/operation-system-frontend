@@ -4,6 +4,7 @@ import type {
   ContentJob,
   CreateContentRequestPayload,
   SubmitContentResponse,
+  UpdateContentDraftPayload,
 } from "@/lib/api/types"
 
 export async function submitContentRequest(
@@ -30,5 +31,15 @@ export async function listContentDrafts() {
 export async function getContentDraft(draftId: string) {
   return authedRequest<ContentDraft>(
     `/api/v1/content/drafts/${encodeURIComponent(draftId)}`
+  )
+}
+
+export async function updateContentDraft(
+  draftId: string,
+  payload: UpdateContentDraftPayload
+) {
+  return authedRequest<ContentDraft>(
+    `/api/v1/content/drafts/${encodeURIComponent(draftId)}`,
+    { method: "PATCH", body: payload }
   )
 }

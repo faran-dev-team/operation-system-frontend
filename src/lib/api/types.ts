@@ -115,6 +115,11 @@ export type CreateContentRequestPayload = {
   format?: string
 }
 
+export type UpdateContentDraftPayload = {
+  content: string
+  expectedVersion: number
+}
+
 export type ApiRequestOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
   body?: unknown
