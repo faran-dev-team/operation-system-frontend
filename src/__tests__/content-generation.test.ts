@@ -285,7 +285,7 @@ describe("useContentGeneration", () => {
     mockedSubmit.mockResolvedValueOnce({ data: submitResponse(), requestId: "r1" })
 
     const { result, rerender } = renderHook(
-      ({ wsId }) => useContentGeneration(wsId),
+      ({ wsId }: { wsId: string | null }) => useContentGeneration(wsId),
       { initialProps: { wsId: "ws-1" as string | null } }
     )
 

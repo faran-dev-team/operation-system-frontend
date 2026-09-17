@@ -21,6 +21,7 @@ import { ErrorState } from "@/components/shared/error-state"
 import { LoadingState } from "@/components/shared/loading-state"
 import { PageHeader } from "@/components/shared/page-header"
 import { useBrandBrief } from "@/hooks/use-brand-brief"
+import { useWorkspacePermissions } from "@/hooks/use-workspace-permissions"
 import type { UpsertBrandBriefPayload } from "@/lib/api/types"
 
 const NAME_MAX = 200
@@ -66,6 +67,7 @@ function fieldsEqual(a: FormFields, b: FormFields) {
 export default function BrandBriefPage() {
   const router = useRouter()
   const { session } = useAuth()
+  const { isReviewer } = useWorkspacePermissions()
   const workspaceId = session?.workspace.id ?? null
 
   const {
@@ -254,6 +256,14 @@ export default function BrandBriefPage() {
           </CardHeader>
 
           <CardContent className="space-y-4">
+            {isReviewer ? (
+              <div
+                role="status"
+                className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-300"
+              >
+                <strong>View-only:</strong> You are currently signed in with the Reviewer role. Editing or creating brand briefs requires an Operator or Administrator role.
+              </div>
+            ) : null}
             {allErrors.length > 0 ? (
               <div
                 role="alert"
@@ -288,6 +298,7 @@ export default function BrandBriefPage() {
                 maxLength={NAME_MAX}
                 required
                 autoComplete="organization"
+                disabled={isSaving || isReviewer}
               />
             </div>
 
@@ -299,6 +310,7 @@ export default function BrandBriefPage() {
                 onChange={(e) => setField("tone", e.target.value)}
                 placeholder="e.g. clear and direct"
                 maxLength={NAME_MAX}
+                disabled={isSaving || isReviewer}
               />
             </div>
 
@@ -311,6 +323,7 @@ export default function BrandBriefPage() {
                 placeholder="Facts your content may reference"
                 maxLength={TEXT_MAX}
                 rows={4}
+                disabled={isSaving || isReviewer}
                 className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 md:text-sm dark:bg-input/30"
               />
             </div>
@@ -324,6 +337,7 @@ export default function BrandBriefPage() {
                 placeholder="Claims your content must never make"
                 maxLength={TEXT_MAX}
                 rows={4}
+                disabled={isSaving || isReviewer}
                 className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 md:text-sm dark:bg-input/30"
               />
             </div>
@@ -341,10 +355,12 @@ export default function BrandBriefPage() {
               type="submit"
               size="lg"
               className="min-h-11 w-full sm:w-auto"
-              disabled={isSaving}
+              disabled={isSaving || isReviewer}
             >
-              {isSaving
-                ? "Saving..."
+              {isReviewer
+                ? "Read-only as Reviewer"
+                : isSaving
+                  ? "Saving..."
                 : brief && !isNotFound
                   ? "Save changes"
                   : "Create brand brief"}
